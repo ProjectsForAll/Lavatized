@@ -1,0 +1,18 @@
+# Only supports MySQL at the moment
+database:
+  host: "localhost"
+  port: "3306"
+  database: "database"
+  table-prefix: "pnts_"
+  username: "username"
+  password: "password"
+  options: "useSSL=false"
+
+points:
+  default: 0.0 # Is a double (decimal) value
+  on-join:
+    load: true # If true, will load the player's points when they join the server
+  on-quit:
+    save: true # If true, will save the player's points when they quit the server
+    dispose: true # If true, will dispose the player's profile in memory when they quit the server
+  save-interval: 5 # In minutes

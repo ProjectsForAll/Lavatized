@@ -1,4 +1,11 @@
-name: ExampleProject
+name: JustPoints
 version: '${version}'
-main: host.plas.exampleproject.ExampleProject
-api-version: '1.20'
+main: host.plas.justpoints.JustPoints
+author: Drakify
+
+commands:
+  points:
+    description: Main command for JustPoints
+    permission: justpoints.command.points
+    usage: /<command>
+    aliases: [pnts, point, pnt]
