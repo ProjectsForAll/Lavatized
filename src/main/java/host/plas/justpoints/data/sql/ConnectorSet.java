@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ConnectorSet {
+    private DatabaseType type;
     private String host;
     private String port;
     private String database;
@@ -11,9 +12,11 @@ public class ConnectorSet {
     private String username;
     private String password;
     private String options;
+    private String sqliteFile;
 
-    public ConnectorSet(String host, String port, String database, String tablePrefix, String username,
-                        String password, String options) {
+    public ConnectorSet(DatabaseType type, String host, String port, String database, String tablePrefix, String username,
+                        String password, String options, String sqliteFile) {
+        this.type = type;
         this.host = host;
         this.port = port;
         this.database = database;
@@ -21,10 +24,11 @@ public class ConnectorSet {
         this.username = username;
         this.password = password;
         this.options = options;
+        this.sqliteFile = sqliteFile;
     }
 
     public ConnectorSet() {
-        this("localhost", "3306", "points", "pnts_", "username", "password", "useSSL=false");
+        this(DatabaseType.SQLITE, "localhost", "3306", "points", "pnts_", "username", "password", "useSSL=false", "points.db");
     }
 
     public ConnectorSet setHost(String host) {
@@ -58,6 +62,18 @@ public class ConnectorSet {
     }
 
     public String getMySqlConnectionString() {
-        return "jdbc:mysql://" + host + ":" + port + "/" + database + "?" + options;
+        return type.getConnectionUrlPrefix() + host + ":" + port + "/" + database + "?" + options;
+    }
+
+    public String getSqliteConnectionString() {
+        return type.getConnectionUrlPrefix() + sqliteFile;
+    }
+
+    public boolean isSqlite() {
+        return type == DatabaseType.SQLITE;
+    }
+
+    public boolean isMySql() {
+        return type == DatabaseType.MYSQL;
     }
 }

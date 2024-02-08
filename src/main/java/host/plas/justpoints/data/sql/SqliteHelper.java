@@ -8,20 +8,21 @@ import lombok.Setter;
 import java.sql.Connection;
 
 @Getter @Setter
-public class MySqlHelper extends AbstractSqlHelper {
-    public MySqlHelper(ConnectorSet connectorSet) {
+public class SqliteHelper extends AbstractSqlHelper {
+    public SqliteHelper(ConnectorSet connectorSet) {
         super(connectorSet);
     }
 
+    @Override
     public Connection getConnection() {
         try {
             if (getDataSource() == null) {
-                Class.forName("com.mysql.cj.jdbc.Driver");
+                Class.forName("org.sqlite.JDBC");
+
+                ensureFileExists();
 
                 HikariConfig hikariConfig = new HikariConfig();
-                hikariConfig.setJdbcUrl(getConnectorSet().getMySqlConnectionString());
-                hikariConfig.setUsername(getConnectorSet().getUsername());
-                hikariConfig.setPassword(getConnectorSet().getPassword());
+                hikariConfig.setJdbcUrl(getConnectorSet().getSqliteConnectionString());
                 hikariConfig.setConnectionTimeout(10000);
                 hikariConfig.setLeakDetectionThreshold(10000);
                 hikariConfig.setMaximumPoolSize(10);
@@ -29,8 +30,7 @@ public class MySqlHelper extends AbstractSqlHelper {
                 hikariConfig.setMaxLifetime(60000);
                 hikariConfig.setPoolName("JustPoints");
                 hikariConfig.addDataSourceProperty("allowMultiQueries", true); // Allows multiple queries to be executed in one statement
-                // new driver class
-                hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+                hikariConfig.setDriverClassName("org.sqlite.JDBC");
 
                 setDataSource(new HikariDataSource(hikariConfig));
             }

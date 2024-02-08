@@ -3,6 +3,7 @@ package host.plas.justpoints;
 import host.plas.justpoints.commands.PointsCMD;
 import host.plas.justpoints.config.MainConfig;
 import host.plas.justpoints.data.PointPlayer;
+import host.plas.justpoints.data.sql.CombinedSqlHelper;
 import host.plas.justpoints.data.sql.MySqlHelper;
 import host.plas.justpoints.events.MainListener;
 import host.plas.justpoints.papi.PointsExpansion;
@@ -20,7 +21,7 @@ public final class JustPoints extends PluginBase {
     @Getter @Setter
     private static MainConfig mainConfig;
     @Getter @Setter
-    private static MySqlHelper mySqlHelper;
+    private static CombinedSqlHelper combinedSqlHelper;
     @Getter @Setter
     private static SaveTimer saveTimer;
     @Getter @Setter
@@ -42,7 +43,8 @@ public final class JustPoints extends PluginBase {
         setInstance(this);
 
         setMainConfig(new MainConfig());
-        setMySqlHelper(new MySqlHelper(getMainConfig().buildConnectorSet()));
+        setCombinedSqlHelper(new CombinedSqlHelper(getMainConfig().buildConnectorSet()));
+        getCombinedSqlHelper().ensureReady(); // Test connection
 
         setExpansion(new PointsExpansion());
         getExpansion().register();

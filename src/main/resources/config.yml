@@ -1,12 +1,14 @@
 # Only supports MySQL at the moment
 database:
-  host: "localhost"
-  port: "3306"
-  database: "database"
+  type: SQLITE # MYSQL or SQLITE
+  host: "localhost" # Only for MySQL
+  port: "3306" # Only for MySQL
+  database: "database" # Only for MySQL
+  username: "username" # Only for MySQL
+  password: "password" # Only for MySQL
+  options: "useSSL=false" # Only for MySQL
   table-prefix: "pnts_"
-  username: "username"
-  password: "password"
-  options: "useSSL=false"
+  sqlite-file: "points.db" # Only for SQLite
 
 points:
   default: 0.0 # Is a double (decimal) value

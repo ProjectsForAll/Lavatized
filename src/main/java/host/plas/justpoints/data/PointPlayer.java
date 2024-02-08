@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -71,7 +70,7 @@ public class PointPlayer implements Comparable<PointPlayer> {
     }
 
     public void save() {
-        JustPoints.getMySqlHelper().putPlayer(this);
+        JustPoints.getCombinedSqlHelper().putPlayer(this);
     }
 
     public void register() {
@@ -104,14 +103,14 @@ public class PointPlayer implements Comparable<PointPlayer> {
                 return p.get();
             }
 
-            p = JustPoints.getMySqlHelper().getPlayer(uuid).join();
+            p = JustPoints.getCombinedSqlHelper().getPlayer(uuid).join();
             if (p.isPresent()) {
                 registerPlayer(p.get());
                 return p.get();
             } else {
                 PointPlayer pl = new PointPlayer(uuid);
                 registerPlayer(pl);
-                JustPoints.getMySqlHelper().putPlayer(pl);
+                JustPoints.getCombinedSqlHelper().putPlayer(pl);
 
                 return pl;
             }

@@ -1,7 +1,8 @@
-name: JustPoints
+name: '${name}'
 version: '${version}'
-main: host.plas.justpoints.JustPoints
-author: Drakify
+main: '${main}'
+authors:
+  - Drakify
 
 commands:
   points:
