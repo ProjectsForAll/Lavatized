@@ -5,8 +5,6 @@ import host.plas.justpoints.data.sql.ConnectorSet;
 import host.plas.justpoints.data.sql.DatabaseType;
 import tv.quaint.storage.resources.flat.simple.SimpleConfiguration;
 
-import java.io.File;
-
 public class MainConfig extends SimpleConfiguration {
     public MainConfig() {
         super("config.yml", JustPoints.getInstance(), true);

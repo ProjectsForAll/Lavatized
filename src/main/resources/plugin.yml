@@ -2,7 +2,8 @@ name: '${name}'
 version: '${version}'
 main: '${main}'
 authors:
-  - Drakify
+  - Drak
+folia-supported: true
 
 commands:
   points:

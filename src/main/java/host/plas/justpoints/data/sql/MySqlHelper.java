@@ -1,9 +1,9 @@
 package host.plas.justpoints.data.sql;
 
-import io.streamlined.bukkit.lib.thebase.lib.hikari.HikariConfig;
-import io.streamlined.bukkit.lib.thebase.lib.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.Setter;
+import tv.quaint.thebase.lib.hikari.HikariConfig;
+import tv.quaint.thebase.lib.hikari.HikariDataSource;
 
 import java.sql.Connection;
 

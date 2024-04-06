@@ -26,6 +26,11 @@ public class PointsExpansion extends PlaceholderExpansion {
     }
 
     @Override
+    public boolean persist() {
+        return true;
+    }
+
+    @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
         String[] split = params.split("_", 3);
 
