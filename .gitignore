@@ -121,3 +121,4 @@ run/
 /.gradle/
 /target/
 /gradle/
+/.fastRequest/
