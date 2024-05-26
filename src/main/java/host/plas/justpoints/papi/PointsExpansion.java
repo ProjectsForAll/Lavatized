@@ -2,6 +2,7 @@ package host.plas.justpoints.papi;
 
 import host.plas.justpoints.JustPoints;
 import host.plas.justpoints.data.PointPlayer;
+import host.plas.justpoints.managers.PointsManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -48,7 +49,7 @@ public class PointsExpansion extends PlaceholderExpansion {
     }
 
     public static String getPoints(OfflinePlayer offlinePlayer, String key) {
-        PointPlayer pointPlayer = PointPlayer.getOrGetPlayer(offlinePlayer.getUniqueId().toString()).join();
+        PointPlayer pointPlayer = PointsManager.getOrGetPlayer(offlinePlayer.getUniqueId().toString());
 
         if (pointPlayer != null) {
             return String.valueOf(pointPlayer.getPoints(key));

@@ -3,11 +3,11 @@ package host.plas.justpoints;
 import host.plas.justpoints.commands.PointsCMD;
 import host.plas.justpoints.config.MainConfig;
 import host.plas.justpoints.data.PointPlayer;
-import host.plas.justpoints.data.sql.CombinedSqlHelper;
-import host.plas.justpoints.data.sql.MySqlHelper;
+import host.plas.justpoints.data.sql.PointsOperator;
 import host.plas.justpoints.events.MainListener;
+import host.plas.justpoints.managers.PointsManager;
 import host.plas.justpoints.papi.PointsExpansion;
-import host.plas.justpoints.timers.SaveTimer;
+import host.plas.justpoints.timers.SyncTimer;
 import io.streamlined.bukkit.PluginBase;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,9 +21,9 @@ public final class JustPoints extends PluginBase {
     @Getter @Setter
     private static MainConfig mainConfig;
     @Getter @Setter
-    private static CombinedSqlHelper combinedSqlHelper;
+    private static PointsOperator mainDatabase;
     @Getter @Setter
-    private static SaveTimer saveTimer;
+    private static SyncTimer syncTimer;
     @Getter @Setter
     private static MainListener mainListener;
 
@@ -43,13 +43,13 @@ public final class JustPoints extends PluginBase {
         setInstance(this);
 
         setMainConfig(new MainConfig());
-        setCombinedSqlHelper(new CombinedSqlHelper(getMainConfig().buildConnectorSet()));
-        getCombinedSqlHelper().ensureReady(); // Test connection
+        setMainDatabase(new PointsOperator(getMainConfig().buildConnectorSet()));
+        getMainDatabase().ensureUsable(); // Test connection
 
         setExpansion(new PointsExpansion());
         getExpansion().register();
 
-        setSaveTimer(new SaveTimer());
+        setSyncTimer(new SyncTimer());
 
         setPointsCMD(new PointsCMD());
         getPointsCMD().register();
@@ -61,8 +61,8 @@ public final class JustPoints extends PluginBase {
     @Override
     public void onBaseDisable() {
         // Plugin shutdown logic
-        getSaveTimer().cancel();
+        getSyncTimer().cancel();
 
-        PointPlayer.getPlayers().forEach(PointPlayer::save);
+        PointsManager.getLoadedPlayers().forEach(PointPlayer::saveAndUnload);
     }
 }

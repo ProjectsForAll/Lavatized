@@ -19,7 +19,6 @@ public class MainConfig extends SimpleConfiguration {
         getDatabaseTablePrefix();
         getDatabaseUsername();
         getDatabasePassword();
-        getDatabaseOptions();
         getSqliteFile();
 
         getPointsDefault();
@@ -41,10 +40,10 @@ public class MainConfig extends SimpleConfiguration {
         return getOrSetDefault("database.host", "localhost");
     }
 
-    public String getDatabasePort() {
+    public int getDatabasePort() {
         reloadResource();
 
-        return getOrSetDefault("database.port", "3306");
+        return getOrSetDefault("database.port", 3306);
     }
 
     public String getDatabaseName() {
@@ -71,12 +70,6 @@ public class MainConfig extends SimpleConfiguration {
         return getOrSetDefault("database.table-prefix", "pnts_");
     }
 
-    public String getDatabaseOptions() {
-        reloadResource();
-
-        return getOrSetDefault("database.options", "useSSL=false");
-    }
-
     public String getSqliteFile() {
         reloadResource();
 
@@ -89,10 +82,9 @@ public class MainConfig extends SimpleConfiguration {
                 getDatabaseHost(),
                 getDatabasePort(),
                 getDatabaseName(),
-                getDatabaseTablePrefix(),
                 getDatabaseUsername(),
                 getDatabasePassword(),
-                getDatabaseOptions(),
+                getDatabaseTablePrefix(),
                 getSqliteFile()
         );
     }

@@ -1,29 +1,36 @@
 package host.plas.justpoints.data;
 
 import host.plas.justpoints.JustPoints;
+import host.plas.justpoints.managers.PointsManager;
+import host.plas.justpoints.utils.MessageUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
+import tv.quaint.objects.Identifiable;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.function.Consumer;
 
 @Getter @Setter
-public class PointPlayer implements Comparable<PointPlayer> {
-    private String uuid;
+public class PointPlayer implements Identifiable {
+    private String identifier;
 
     private String username;
     private ConcurrentSkipListMap<String, Double> points;
 
-    public PointPlayer(String uuid, String username, ConcurrentSkipListMap<String, Double> points) {
-        this.uuid = uuid;
+    private long lastEditedMillis;
+
+    private boolean loadedAtLeastOnce;
+
+    public PointPlayer(String identifier, String username, ConcurrentSkipListMap<String, Double> points) {
+        this.identifier = identifier;
         this.username = username;
         this.points = points;
+        this.loadedAtLeastOnce = false;
     }
 
     public PointPlayer(String uuid, String username) {
@@ -40,11 +47,6 @@ public class PointPlayer implements Comparable<PointPlayer> {
 
     public PointPlayer(OfflinePlayer player, ConcurrentSkipListMap<String, Double> points) {
         this(player.getUniqueId().toString(), player.getName(), points);
-    }
-
-    @Override
-    public int compareTo(@NotNull PointPlayer o) {
-        return uuid.compareTo(o.getUuid());
     }
 
     public double getPoints(String type) {
@@ -69,51 +71,65 @@ public class PointPlayer implements Comparable<PointPlayer> {
         this.points.put(type, points);
     }
 
+    public void saveAndUnload() {
+        PointsManager.unloadPlayer(getIdentifier(), true);
+    }
+
     public void save() {
-        JustPoints.getCombinedSqlHelper().putPlayer(this);
+        JustPoints.getMainDatabase().savePlayer(this);
+        setLastEditedMillis(System.currentTimeMillis());
     }
 
-    public void register() {
-        registerPlayer(this);
-    }
+    public PointPlayer augment(CompletableFuture<Optional<PointPlayer>> future) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                Optional<PointPlayer> p = future.join();
+                if (p.isEmpty()) return;
+                PointPlayer player = p.get();
 
-    public void unregister() {
-        unregisterPlayer(uuid);
-    }
+                if (loadedAtLeastOnce) {
+                    player.getPoints().forEach((key, value) -> {
+                        this.points.compute(key, (k, current) -> value);
+                    });
+                } else {
+                    player.getPoints().forEach((key, value) -> {
+                        this.points.compute(key, (k, current) -> {
+                            if (current == null) return value;
+                            return current + value;
+                        });
+                    });
+                }
 
-    @Getter @Setter
-    private static ConcurrentSkipListSet<PointPlayer> players = new ConcurrentSkipListSet<>();
+                this.username = player.getUsername();
+                this.lastEditedMillis = player.getLastEditedMillis();
 
-    public static void registerPlayer(PointPlayer player) {
-        players.add(player);
-    }
-
-    public static void unregisterPlayer(String uuid) {
-        players.removeIf(player -> player.getUuid().equalsIgnoreCase(uuid));
-    }
-
-    public static Optional<PointPlayer> getPlayer(String uuid) {
-        return players.stream().filter(player -> player.getUuid().equalsIgnoreCase(uuid)).findFirst();
-    }
-
-    public static CompletableFuture<PointPlayer> getOrGetPlayer(String uuid) {
-        return CompletableFuture.supplyAsync(() -> {
-            Optional<PointPlayer> p = getPlayer(uuid);
-            if (p.isPresent()) {
-                return p.get();
-            }
-
-            p = JustPoints.getCombinedSqlHelper().getPlayer(uuid).join();
-            if (p.isPresent()) {
-                registerPlayer(p.get());
-                return p.get();
-            } else {
-                PointPlayer pl = new PointPlayer(uuid);
-                registerPlayer(pl);
-                JustPoints.getCombinedSqlHelper().putPlayer(pl);
-
-                return pl;
+                this.loadedAtLeastOnce = true;
+            } catch (Exception e) {
+                MessageUtils.logError("Error augmenting player data for " + getIdentifier());
+                e.printStackTrace();
             }
         });
+
+        return this;
+    }
+
+    public void load() {
+        PointsManager.loadPlayer(this);
+    }
+
+    public void unload() {
+        PointsManager.unloadPlayer(getIdentifier(), false);
+    }
+
+    public void reset(String key) {
+        points.remove(key);
+
+        JustPoints.getMainDatabase().resetPoints(key, this);
+
+        save();
+    }
+
+    public void action(Consumer<PointPlayer> action) {
+        action.accept(this);
     }
 }

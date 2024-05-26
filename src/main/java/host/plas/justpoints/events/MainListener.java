@@ -2,6 +2,8 @@ package host.plas.justpoints.events;
 
 import host.plas.justpoints.JustPoints;
 import host.plas.justpoints.data.PointPlayer;
+import host.plas.justpoints.managers.PointsManager;
+import host.plas.justpoints.utils.MessageUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +16,8 @@ public class MainListener implements Listener {
         Player player = event.getPlayer();
 
         if (JustPoints.getMainConfig().getPointsOnJoinLoad()) {
-            PointPlayer.getOrGetPlayer(player.getUniqueId().toString());
+            PointPlayer playerData = PointsManager.getOrGetPlayer(player.getUniqueId().toString());
+            playerData.setUsername(player.getName());
         }
     }
 
@@ -22,18 +25,12 @@ public class MainListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        PointPlayer.getOrGetPlayer(player.getUniqueId().toString()).whenComplete((pointPlayer, throwable) -> {
-            if (throwable != null) {
-                throwable.printStackTrace();
-            } else {
-                if (JustPoints.getMainConfig().getPointsOnQuitSave()) {
-                    pointPlayer.save();
-                }
-
-                if (JustPoints.getMainConfig().getPointsOnQuitDispose()) {
-                    pointPlayer.unregister();
-                }
-            }
-        });
+        PointPlayer playerData = PointsManager.getOrGetPlayer(player.getUniqueId().toString());
+        if (JustPoints.getMainConfig().getPointsOnQuitSave()) {
+            playerData.save();
+        }
+        if (JustPoints.getMainConfig().getPointsOnQuitDispose()) {
+            PointsManager.unloadPlayer(player.getUniqueId().toString(), false);
+        }
     }
 }

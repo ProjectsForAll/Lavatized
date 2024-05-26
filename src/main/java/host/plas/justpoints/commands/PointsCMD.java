@@ -2,18 +2,16 @@ package host.plas.justpoints.commands;
 
 import host.plas.justpoints.JustPoints;
 import host.plas.justpoints.data.PointPlayer;
+import host.plas.justpoints.managers.PointsManager;
 import io.streamlined.bukkit.commands.CommandContext;
 import io.streamlined.bukkit.commands.SimplifiedCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class PointsCMD extends SimplifiedCommand {
@@ -41,12 +39,7 @@ public class PointsCMD extends SimplifiedCommand {
                 }
 
                 OfflinePlayer aofflinePlayer = Bukkit.getOfflinePlayer(aplayer);
-                PointPlayer.getOrGetPlayer(aofflinePlayer.getUniqueId().toString()).whenComplete((pointPlayer, throwable) -> {
-                    if (throwable != null) {
-                        throwable.printStackTrace();
-                        return;
-                    }
-
+                PointsManager.getOrGetPlayer(aofflinePlayer.getUniqueId().toString()).action(pointPlayer -> {
                     if (pointPlayer == null) {
                         commandContext.sendMessage("&cPlayer not found.");
                         return;
@@ -73,13 +66,7 @@ public class PointsCMD extends SimplifiedCommand {
                 }
 
                 OfflinePlayer rofflinePlayer = Bukkit.getOfflinePlayer(rplayer);
-                PointPlayer.getOrGetPlayer(rofflinePlayer.getUniqueId().toString()).whenComplete((pointPlayer, throwable) -> {
-                    if (throwable != null) {
-                        throwable.printStackTrace();
-                        commandContext.sendMessage("&cError getting player.");
-                        return;
-                    }
-
+                PointsManager.getOrGetPlayer(rofflinePlayer.getUniqueId().toString()).action(pointPlayer -> {
                     if (pointPlayer == null) {
                         commandContext.sendMessage("&cPlayer not found.");
                         return;
@@ -106,13 +93,7 @@ public class PointsCMD extends SimplifiedCommand {
                 }
 
                 OfflinePlayer sofflinePlayer = Bukkit.getOfflinePlayer(splayer);
-                PointPlayer.getOrGetPlayer(sofflinePlayer.getUniqueId().toString()).whenComplete((pointPlayer, throwable) -> {
-                    if (throwable != null) {
-                        throwable.printStackTrace();
-                        commandContext.sendMessage("&cError getting player.");
-                        return;
-                    }
-
+                PointsManager.getOrGetPlayer(sofflinePlayer.getUniqueId().toString()).action(pointPlayer -> {
                     if (pointPlayer == null) {
                         commandContext.sendMessage("&cPlayer not found.");
                         return;
@@ -134,13 +115,7 @@ public class PointsCMD extends SimplifiedCommand {
                 String gtype = commandContext.getStringArg(2);
 
                 OfflinePlayer gofflinePlayer = Bukkit.getOfflinePlayer(gplayer);
-                PointPlayer.getOrGetPlayer(gofflinePlayer.getUniqueId().toString()).whenComplete((pointPlayer, throwable) -> {
-                    if (throwable != null) {
-                        throwable.printStackTrace();
-                        commandContext.sendMessage("&cError getting player.");
-                        return;
-                    }
-
+                PointsManager.getOrGetPlayer(gofflinePlayer.getUniqueId().toString()).action(pointPlayer -> {
                     if (pointPlayer == null) {
                         commandContext.sendMessage("&cPlayer not found.");
                         return;
@@ -148,6 +123,33 @@ public class PointsCMD extends SimplifiedCommand {
 
                     commandContext.sendMessage("&d" + gplayer + " &ehas &f" + pointPlayer.getPoints(gtype) + " &cpoints&8.");
                 });
+                return true;
+            case "reset":
+                if (commandContext.getArgs().size() < 2) {
+                    commandContext.sendMessage("&cUsage: /points reset <key> (player)");
+                    return true;
+                }
+
+                String key = commandContext.getStringArg(1);
+
+                if (commandContext.isArgUsable(2)) {
+                    String resplayer = commandContext.getStringArg(2);
+                    OfflinePlayer resofflinePlayer = Bukkit.getOfflinePlayer(resplayer);
+
+                    PointsManager.getOrGetPlayer(resofflinePlayer.getUniqueId().toString()).action(pointPlayer -> {
+                        if (pointPlayer == null) {
+                            commandContext.sendMessage("&cPlayer not found.");
+                            return;
+                        }
+
+                        pointPlayer.reset(key);
+
+                        commandContext.sendMessage("&eReset &cpoints &efor &d" + resplayer + "&8.");
+                    });
+                }
+                JustPoints.getMainDatabase().dropPoints(key);
+
+                commandContext.sendMessage("&eDropped points with key &d" + key + "&8.");
                 return true;
             default:
                 commandContext.sendMessage("&cInvalid action.");
@@ -170,8 +172,16 @@ public class PointsCMD extends SimplifiedCommand {
             tab.add("remove");
             tab.add("set");
             tab.add("get");
+            tab.add("reset");
         } else if (commandContext.getArgs().size() == 2) {
-            tab.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
+            if (s.hasPermission("justpoints.command.points.add") || s.hasPermission("justpoints.command.points.remove") ||
+                    s.hasPermission("justpoints.command.points.set") || s.hasPermission("justpoints.command.points.get")) {
+                tab.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
+            }
+
+            if (s.hasPermission("justpoints.command.points.reset")) {
+                tab.add("<key>");
+            }
         } else if (commandContext.getArgs().size() == 3) {
             if (s.hasPermission("justpoints.command.points.add") || s.hasPermission("justpoints.command.points.remove") ||
                     s.hasPermission("justpoints.command.points.set") || s.hasPermission("justpoints.command.points.get")) {
@@ -179,7 +189,7 @@ public class PointsCMD extends SimplifiedCommand {
 
                 if (commandContext.getStringArg(1).equalsIgnoreCase("get") && s.hasPermission("justpoints.command.points.get")) {
                     OfflinePlayer target = Bukkit.getOfflinePlayer(commandContext.getStringArg(2));
-                    PointPlayer pointPlayer = PointPlayer.getOrGetPlayer(target.getUniqueId().toString()).completeOnTimeout(null, 77, TimeUnit.MILLISECONDS).join();
+                    PointPlayer pointPlayer = PointsManager.getOrGetPlayer(target.getUniqueId().toString());
 
                     if (pointPlayer == null) {
                         return tab;
@@ -187,6 +197,10 @@ public class PointsCMD extends SimplifiedCommand {
 
                     tab.addAll(pointPlayer.getPoints().keySet());
                 }
+            }
+
+            if (s.hasPermission("justpoints.command.points.reset")) {
+                tab.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
             }
         }
 
