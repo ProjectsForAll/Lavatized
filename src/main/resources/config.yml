@@ -1,4 +1,4 @@
-# Only supports MySQL at the moment
+# Database settings.
 database:
   type: SQLITE # MYSQL or SQLITE
   host: "localhost" # Only for MySQL

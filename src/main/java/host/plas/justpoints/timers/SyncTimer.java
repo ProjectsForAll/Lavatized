@@ -1,8 +1,8 @@
 package host.plas.justpoints.timers;
 
+import host.plas.bou.scheduling.BaseRunnable;
 import host.plas.justpoints.JustPoints;
 import host.plas.justpoints.managers.PointsManager;
-import io.streamlined.bukkit.instances.BaseRunnable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,11 +13,11 @@ public class SyncTimer extends BaseRunnable {
     private LocalDateTime lastSave;
 
     public SyncTimer() {
-        super(0, 1, false);
+        super(0, 1);
     }
 
     @Override
-    public void execute() {
+    public void run() {
         if (lastSave == null) {
             doSaveRun();
         }

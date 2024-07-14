@@ -8,7 +8,7 @@ import host.plas.justpoints.events.MainListener;
 import host.plas.justpoints.managers.PointsManager;
 import host.plas.justpoints.papi.PointsExpansion;
 import host.plas.justpoints.timers.SyncTimer;
-import io.streamlined.bukkit.PluginBase;
+import host.plas.bou.PluginBase;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
