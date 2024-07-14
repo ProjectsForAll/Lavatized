@@ -46,7 +46,7 @@ dependencies {
     compileOnly(COMP_ONLY)
     shadow(SHADOW)
 
-    implementation(annotationProcessor(shadow("com.github.streamline-essentials:BukkitOfUtils:-SNAPSHOT")))
+    implementation(annotationProcessor(shadow("com.github.streamline-essentials:BukkitOfUtils:master-SNAPSHOT")))
 
     // Other Plugins
     compileOnly(OTHER_PLUGINS)

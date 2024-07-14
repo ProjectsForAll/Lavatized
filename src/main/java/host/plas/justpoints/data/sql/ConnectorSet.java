@@ -3,6 +3,9 @@ package host.plas.justpoints.data.sql;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * A class that holds the information for a database connection.
+ */
 @Getter @Setter
 public class ConnectorSet {
     private DatabaseType type;
