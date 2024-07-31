@@ -10,11 +10,36 @@ database:
   table-prefix: "pnts_"
   sqlite-file: "points.db" # Only for SQLite
 
-points:
-  default: 0.0 # Is a double (decimal) value
-  on-join:
-    load: true # If true, will load the player's points when they join the server
-  on-quit:
-    save: true # If true, will save the player's points when they quit the server
-    dispose: true # If true, will dispose the player's profile in memory when they quit the server
-  save-interval: 5 # In minutes
+arenas:
+    # Arena identifier
+    arena1:
+      name: "Arena 1"
+      # Radius of the arena
+      radius:
+        center:
+          x: 0.0
+          z: 0.0
+        start: 249.5
+        end: 9.5
+        shrink-time: 36000
+      lobby:
+        world: "world"
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        yaw: 0.0
+        pitch: 0.0
+      # 20 ticks = 1 second
+      # 20 * 60 * 2 = 2400 ticks
+      grace-period: 2400
+      items:
+        - "{id: 'minecraft:cooked_beef', count: 8}"
+      seeds:
+        - 24190412909394
+      # 20 ticks = 1 second
+      # 20 * 15 = 300 ticks
+      ticks-per-layer: 300
+      # Reset settings.
+      reset:
+        # Reset on unload?
+        on-unload: true

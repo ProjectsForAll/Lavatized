@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2' // for shadowing
+    id "io.freefair.lombok" version "8.6"
 }
 
 apply from: rootDir.toString() + '/dependencies.gradle'
@@ -20,8 +21,12 @@ ext {
 repositories {
     mavenCentral()
     maven {
-        name = "spigotmc-repo"
-        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+        name = 'spigot-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'enginehub-repo'
+        url = 'https://maven.enginehub.org/repo/'
     }
     maven {
         name = "sonatype"
@@ -41,16 +46,16 @@ disableAutoTargetJvm()
 dependencies {
     // Defaults.
     compileOnly(files(FILES))
-    shadow(implementation(compileOnly(files(SH_FILES))))
     annotationProcessor(ANNO)
     implementation(IMPL)
     compileOnly(COMP_ONLY)
     shadow(SHADOW)
 
-    implementation(annotationProcessor(shadow("com.github.Streamline-Essentials:BukkitOfUtils:-SNAPSHOT")))
-
     // Other Plugins
     compileOnly(OTHER_PLUGINS)
+    compileOnly 'org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT'
+    compileOnly 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
 }
 
 processResources {

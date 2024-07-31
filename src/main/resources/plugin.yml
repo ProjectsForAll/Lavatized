@@ -1,13 +1,15 @@
 name: '${name}'
 version: '${version}'
 main: '${main}'
-authors:
-  - Drak
+authors: [ Drak ]
+depend:
+  - BukkitOfUtils
 folia-supported: true
 
 commands:
-  points:
-    description: Main command for JustPoints
-    permission: justpoints.command.points
-    usage: /<command>
-    aliases: [pnts, point, pnt]
+  lavatized:
+    description: Main command for Lavatized.
+    permission: lavatized.command.default
+    aliases:
+      - lavatize
+      - lt
